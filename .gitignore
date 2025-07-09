@@ -1,0 +1,33 @@
+### Maven build directory ###
+/target/
+
+### IntelliJ IDEA ###
+*.iml
+.idea/
+*.ipr
+*.iws
+
+### Eclipse ###
+.project
+.classpath
+.settings/
+
+### VS Code ###
+.vscode/
+
+### MacOS & Windows ###
+.DS_Store
+Thumbs.db
+
+### Logs ###
+*.log
+
+### Maven wrapper ###
+.mvn/
+!**/mvn/wrapper/maven-wrapper.jar
+
+### Environment / Secrets ###
+*.env
+application.properties
+application.yml
+

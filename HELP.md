@@ -1,7 +1,7 @@
 # Read Me First
 The following was discovered as part of building this project:
 
-* The original package name 'ch.sze.Task-Manager' is invalid and this project uses 'ch.sze.Task_Manager' instead.
+* The original package name 'ch.sze.Task-Manager' is invalid and this project uses 'ch.sze.task_manager_backend' instead.
 
 # Getting Started
 

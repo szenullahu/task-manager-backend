@@ -2,9 +2,7 @@ package ch.sze.task_manager_backend.service;
 
 import ch.sze.task_manager_backend.entity.UserEntity;
 import ch.sze.task_manager_backend.entity.UserPrincipal;
-import ch.sze.task_manager_backend.entity.dto.PasswordUpdateDTO;
-import ch.sze.task_manager_backend.entity.dto.UserDTO;
-import ch.sze.task_manager_backend.entity.dto.UserUpdateDTO;
+import ch.sze.task_manager_backend.entity.dto.user.*;
 import ch.sze.task_manager_backend.repository.UserEntityRepo;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -33,26 +31,24 @@ public class UserEntityService {
         this.jwtService = jwtService;
     }
 
-    public List<UserEntity> getAllUsers() {
-        return userEntityRepo.findAll();
-    }
-
-    public UserEntity register(UserEntity userEntity) {
-        if (userEntityRepo.existsByUsername(userEntity.getUsername())) {
+    public UserDTO register(UserRegisterDTO dto) {
+        if (userEntityRepo.existsByUsername(dto.getUsername())) {
             throw new IllegalArgumentException("Username already exists");
         }
-        if (userEntityRepo.existsByEmail(userEntity.getEmail())) {
+        if (userEntityRepo.existsByEmail(dto.getEmail())) {
             throw new IllegalArgumentException("E-Mail already exists");
         }
-        userEntity.setPassword(encoder.encode(userEntity.getPassword()));
-        return userEntityRepo.save(userEntity);
+        UserEntity userEntity = mapToEntity(dto);
+        userEntity.setPassword(encoder.encode(dto.getPassword()));
+        userEntityRepo.save(userEntity);
+        return mapToUserDTO(userEntity);
     }
 
-    public String login(UserEntity userEntity) {
+    public String login(UserLoginDTO dto) {
         Authentication authentication = manager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        userEntity.getUsername(),
-                        userEntity.getPassword()
+                        dto.getUsername(),
+                        dto.getPassword()
                 )
         );
 
@@ -86,6 +82,16 @@ public class UserEntityService {
         );
     }
 
+    private UserEntity mapToEntity(UserRegisterDTO dto) {
+        UserEntity userEntity = new UserEntity();
+        userEntity.setUsername(dto.getUsername());
+        userEntity.setEmail(dto.getEmail());
+        userEntity.setFirstname(dto.getFirstname());
+        userEntity.setSurname(dto.getSurname());
+        // Password is set separately after encoding
+        return userEntity;
+    }
+
 
     public UserDTO getUser(UUID userId) {
         UserEntity user = userEntityRepo.findById(userId).orElseThrow(() -> new RuntimeException("Could Not Find User"));
@@ -110,7 +116,7 @@ public class UserEntityService {
     public void updateUserPassword(UUID userId, PasswordUpdateDTO passwordUpdateDTO) {
         UserEntity userEntity = userEntityRepo.findById(userId).orElseThrow(() -> new RuntimeException("Could Not Find User"));
 
-        if(!encoder.matches(passwordUpdateDTO.getOldPassword(), userEntity.getPassword())) {
+        if (!encoder.matches(passwordUpdateDTO.getOldPassword(), userEntity.getPassword())) {
             throw new IllegalArgumentException("Old password is incorrect");
         }
 

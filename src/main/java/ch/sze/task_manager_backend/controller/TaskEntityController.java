@@ -29,6 +29,14 @@ public class TaskEntityController {
         this.jwtService = jwtService;
     }
 
+
+    @GetMapping("/{id}")
+    public ResponseEntity<TaskDTO> getTaskById(@RequestHeader("Authorization") String authHeader, @PathVariable UUID id) throws AccessDeniedException {
+        String token = authHeader.substring(7);
+        UUID userId = jwtService.extractId(token);
+        return new ResponseEntity<>(taskService.getTaskById(userId, id), HttpStatus.OK);
+    }
+
     @GetMapping()
     public ResponseEntity<List<TaskDTO>> getMyTasks(@RequestHeader("Authorization") String authHeader) {
         String token = authHeader.substring(7);
@@ -57,6 +65,6 @@ public class TaskEntityController {
         String token = authHeader.substring(7);
         UUID userId = jwtService.extractId(token);
         taskService.deleteTask(id, userId);
-        return ResponseEntity.ok("Task deleted successfully");
+        return ResponseEntity.noContent().build();
     }
 }

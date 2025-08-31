@@ -93,4 +93,15 @@ public class TaskService {
         TaskEntity updated = taskRepo.save(task);
         return mapToTaskDTO(updated);
     }
+
+    public TaskDTO getTaskById(UUID userId, UUID id) throws AccessDeniedException {
+        TaskEntity task = taskRepo.findById(id).orElseThrow(() -> new RuntimeException("Task not found"));
+
+        if (!Objects.equals(task.getUserEntity().getId(), userId)) {
+            throw new AccessDeniedException("This is not your task.");
+        }
+
+        return mapToTaskDTO(task);
+
+    }
 }

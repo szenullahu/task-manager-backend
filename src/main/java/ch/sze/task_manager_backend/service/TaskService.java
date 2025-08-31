@@ -2,8 +2,9 @@ package ch.sze.task_manager_backend.service;
 
 import ch.sze.task_manager_backend.entity.TaskEntity;
 import ch.sze.task_manager_backend.entity.UserEntity;
-import ch.sze.task_manager_backend.entity.dto.TaskDTO;
-import ch.sze.task_manager_backend.entity.dto.TaskUpdateDTO;
+import ch.sze.task_manager_backend.entity.dto.task.TaskCreateDTO;
+import ch.sze.task_manager_backend.entity.dto.task.TaskDTO;
+import ch.sze.task_manager_backend.entity.dto.task.TaskUpdateDTO;
 import ch.sze.task_manager_backend.repository.TaskRepo;
 import ch.sze.task_manager_backend.repository.UserEntityRepo;
 import org.springframework.stereotype.Service;
@@ -26,18 +27,22 @@ public class TaskService {
         this.userEntityRepo = userEntityRepo;
     }
 
-    public TaskEntity getTaskById(UUID id) {
-        return taskRepo.findById(id).orElseThrow(() -> new RuntimeException("Task Not Found"));
-    }
-
-    public List<TaskEntity> getAllTasks() {
-        return taskRepo.findAll();
-    }
-
-    public TaskEntity createTask(TaskEntity taskEntity, UUID userId) {
+    public TaskDTO createTask(TaskCreateDTO taskCreateDTO, UUID userId) {
         UserEntity userEntity = userEntityRepo.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        TaskEntity taskEntity = mapToTaskEntity(taskCreateDTO);
         taskEntity.setUserEntity(userEntity);
-        return taskRepo.save(taskEntity);
+        taskRepo.save(taskEntity);
+        return mapToTaskDTO(taskEntity);
+    }
+
+    private TaskEntity mapToTaskEntity(TaskCreateDTO taskCreateDTO) {
+        TaskEntity taskEntity = new TaskEntity();
+        taskEntity.setTitle(taskCreateDTO.getTitle());
+        taskEntity.setDescription(taskCreateDTO.getDescription());
+        taskEntity.setStatus(taskCreateDTO.getStatus());
+        taskEntity.setPriority(taskCreateDTO.getPriority());
+        taskEntity.setDueDate(taskCreateDTO.getDueDate());
+        return taskEntity;
     }
 
 
@@ -87,5 +92,16 @@ public class TaskService {
 
         TaskEntity updated = taskRepo.save(task);
         return mapToTaskDTO(updated);
+    }
+
+    public TaskDTO getTaskById(UUID userId, UUID id) throws AccessDeniedException {
+        TaskEntity task = taskRepo.findById(id).orElseThrow(() -> new RuntimeException("Task not found"));
+
+        if (!Objects.equals(task.getUserEntity().getId(), userId)) {
+            throw new AccessDeniedException("This is not your task.");
+        }
+
+        return mapToTaskDTO(task);
+
     }
 }

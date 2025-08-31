@@ -1,4 +1,4 @@
-package ch.sze.task_manager_backend.entity.dto;
+package ch.sze.task_manager_backend.entity.dto.user;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

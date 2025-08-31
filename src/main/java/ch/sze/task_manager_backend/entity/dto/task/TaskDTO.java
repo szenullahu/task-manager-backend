@@ -1,4 +1,4 @@
-package ch.sze.task_manager_backend.entity.dto;
+package ch.sze.task_manager_backend.entity.dto.task;
 
 import ch.sze.task_manager_backend.entity.TaskPriority;
 import ch.sze.task_manager_backend.entity.TaskStatus;
